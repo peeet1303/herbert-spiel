@@ -1761,7 +1761,7 @@ function drawHwBg(){const t=Date.now()/1000;let gr=ctx.createLinearGradient(0,0,
  for(let k=0;k<3;k++){const y=((k*230+cam*.45)%(H+120))-60;const fg=ctx.createLinearGradient(0,y-30,0,y+30);fg.addColorStop(0,'rgba(180,140,220,0)');fg.addColorStop(.5,'rgba(180,140,220,.10)');fg.addColorStop(1,'rgba(180,140,220,0)');ctx.fillStyle=fg;ctx.fillRect(0,y-30,W,60)}
  for(let k=0;k<2;k++){const x=((t*14+k*230)%(W+80))-40,y=((k*260+cam*.35)%H);ctx.globalAlpha=.18+.08*Math.sin(t*3+k);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,12,Math.PI,0);ctx.lineTo(x+12,y+16);for(let j=0;j<3;j++)ctx.lineTo(x+12-(j+.5)*8,y+12+(j%2)*4);ctx.lineTo(x-12,y+16);ctx.fill();ctx.globalAlpha=1}}
 /* ===== VIP + Haustiere ===== */
-var VIP_PRICE=10000,PETS=[['Katze','cat'],['Hund','dog'],['Drache','drake'],['Dino','dino'],['Zwerg','gnome']];
+var VIP_PRICE=5000,PETS=[['Katze','cat'],['Hund','dog'],['Drache','drake'],['Dino','dino'],['Zwerg','gnome']];
 function vipOn(){return (S.vipU||0)>Date.now()}
 function vipLeft(){const ms=Math.max(0,(S.vipU||0)-Date.now()),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5);return d+' Tage '+h+' Std'}
 function drawPet(g,k,x,y,t,dir,air){g.save();g.translate(x,y);g.scale(dir||1,1);g.lineJoin='round';g.lineCap='round';const OL='#1a1020';
