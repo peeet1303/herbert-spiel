@@ -451,11 +451,17 @@ function frUI(){frDot();if(!$('fr2').classList.contains('on'))return;if(FR.open)
  b.append(el('b','fr-h','👥 Deine Freunde ('+frS().length+')'));if(!frS().length)b.append(el('small','','Noch keine Freunde. Gib oben den Namen eines Freundes ein!'));
  const now=Date.now();for(const f of frS()){const g=GL.rows[f.rid]||{},on=now-(g.t||0)<120000,r=el('div','p fr-row');r.style.cursor='pointer';const dot=el('i','gldot');dot.style.background=on?'#7dff4f':'#556';const nm=el('b','',f.n);nm.style.flex='1';const sc=el('span','glsc',g.b?'🏆 '+g.b:'');const u=frUnread(f);r.append(dot,nm,sc);if(u){const ub=el('span','fr-ub',u);r.append(ub)}const pb=el('button','sec','👤');pb.onclick=e=>{e.stopPropagation();if(g.n)glProfile(Object.assign({id:f.rid},g),0,0)};r.append(pb);r.onclick=()=>{FR.open=f.id;frUI()};b.append(r)}
  if(S.frOut.filter(id=>!frS().some(f=>f.id===id)).length)b.append(el('small','','⏳ '+S.frOut.filter(id=>!frS().some(f=>f.id===id)).length+' Anfrage(n) warten auf Antwort'));
- dirInit();const D=Object.values(FR.dir).filter(x=>x.id!==S.acc.id&&!frS().some(f=>f.id===x.id)&&!BANS.includes(x.rid)).map(x=>{if(!x.rid){const k=Object.keys(GL.rows).find(k=>GL.rows[k].n===x.n);if(k)x.rid=k}return Object.assign({g:GL.rows[x.rid]||{}},x)}).sort((a,c)=>(c.g.b||0)-(a.g.b||0));
- b.append(el('b','fr-h','🌍 Spieler mit Konto ('+D.length+')'));if(!D.length)b.append(el('small','','Lade Spieler … (Spieler erscheinen hier, sobald sie ein Konto haben)'));
- for(const x of D){const on=now-(x.g.t||0)<120000,r=el('div','p fr-row'),dot=el('i','gldot');dot.style.background=on?'#7dff4f':'#556';const nm=el('b','',x.n);nm.style.flex='1';r.append(dot,nm,el('span','glsc',x.g.b?'🏆 '+x.g.b:''));
-  const sent=S.frOut.includes(x.id),inc=!!FR.req[x.id],a=el('button',sent?'sec':'alt',inc?'✔ Annehmen':sent?'⏳ Gesendet':'➕ Adden');a.disabled=sent&&!inc;a.onclick=async e=>{e.stopPropagation();a.disabled=true;try{msg.style.color='#7dff4f';msg.textContent=await frAddId(x.id,x.n)}catch(er){msg.style.color='#ff6a6a';msg.textContent=String(er);a.disabled=false}};r.append(a);
-  if(x.g.n){r.style.cursor='pointer';r.onclick=()=>glProfile(Object.assign({id:x.rid},x.g),0,0)}b.append(r)}}
+ dirInit();FR.idc=FR.idc||{};const seen=new Set(),D=[],N=[];
+ for(const x of Object.values(FR.dir)){if(x.id===S.acc.id||frS().some(f=>f.id===x.id))continue;if(!x.rid){const k=Object.keys(GL.rows).find(k=>GL.rows[k].n===x.n);if(k)x.rid=k}if(x.rid&&BANS.includes(x.rid))continue;seen.add(x.n.toLowerCase());if(x.rid)seen.add('#'+x.rid);D.push(Object.assign({g:GL.rows[x.rid]||{}},x))}
+ for(const rid in GL.rows){const g=GL.rows[rid];if(rid===glId()||BANS.includes(rid)||!g.n||seen.has(g.n.toLowerCase())||seen.has('#'+rid))continue;const id=FR.idc[g.n.toLowerCase()];if(id===undefined){FR.idc[g.n.toLowerCase()]=null;accId(g.n).then(v=>{FR.idc[g.n.toLowerCase()]=v;clearTimeout(dirInit._t);dirInit._t=setTimeout(frUI,300)})}if(id&&(id===S.acc.id||frS().some(f=>f.id===id)))continue;N.push({n:g.n,rid,g})}
+ D.sort((a,c)=>(c.g.b||0)-(a.g.b||0));N.sort((a,c)=>(c.g.b||0)-(a.g.b||0));
+ b.append(el('b','fr-h','🌍 Spieler mit Konto ('+D.length+')'));if(!D.length)b.append(el('small','','Lade Spieler …'));
+ const prow=(x,acc)=>{const on=now-(x.g.t||0)<120000,r=el('div','p fr-row'),dot=el('i','gldot');dot.style.background=on?'#7dff4f':'#556';const nm=el('b','',x.n);nm.style.flex='1';r.append(dot,nm,el('span','glsc',x.g.b?'🏆 '+x.g.b:''));
+  if(acc){const sent=S.frOut.includes(x.id),inc=!!FR.req[x.id],a=el('button',sent?'sec':'alt',inc?'✔ Annehmen':sent?'⏳ Gesendet':'➕ Adden');a.disabled=sent&&!inc;a.onclick=async e=>{e.stopPropagation();a.disabled=true;try{msg.style.color='#7dff4f';msg.textContent=await frAddId(x.id,x.n)}catch(er){msg.style.color='#ff6a6a';msg.textContent=String(er);a.disabled=false}};r.append(a)}
+  else{r.style.opacity='.55';r.append(el('small','','kein Konto'))}
+  if(x.g.n){r.style.cursor='pointer';r.onclick=()=>glProfile(Object.assign({id:x.rid},x.g),0,0)}b.append(r)};
+ for(const x of D)prow(x,true);
+ if(N.length){b.append(el('b','fr-h','👤 Spieler ohne Konto ('+N.length+')'),el('small','acc-hint','Die musst du erst bitten, unter Optionen → Konto eins zu erstellen. Dann kannst du sie adden.'));for(const x of N.slice(0,40))prow(x,false)}}
 function chRender(){const b=$('frBody'),f=frS().find(x=>x.id===FR.open);if(!f){FR.open=null;frUI();return}const c=chId(f.id);(S.chs=S.chs||{})[c]=Date.now();save();frDot();
  const keep=b.querySelector('.ch-in'),draft=keep?keep.value:'',hadF=keep&&document.activeElement===keep;b.textContent='';const el=(t,cl,x)=>{const e=document.createElement(t);if(cl)e.className=cl;if(x!=null)e.textContent=x;return e};
  const hd=el('div','ch-hd'),bk=el('button','sec','←');bk.style.cssText='width:56px;min-width:0;flex:0 0 56px;margin:0;padding:6px 0';bk.onclick=()=>{FR.open=null;frUI()};hd.append(bk,el('b','',f.n));b.append(hd);
@@ -2137,7 +2143,7 @@ let blc=null;function bloom(){if(!blc){blc=document.createElement('canvas');blc.
 var lpT=0,lpAcc=0,QL=0,fpsT=0,fpsN=0,fpsBad=0,STEP=1000/60;
 function loop(){const now=performance.now();if(!lpT)lpT=now;const dt=Math.min(250,now-lpT);lpT=now;lpAcc+=dt;let n=0;while(lpAcc>=STEP&&n<6){update();lpAcc-=STEP;n++}if(n>=6)lpAcc=0;
  if(state==='play'){fpsN++;fpsT+=dt;if(fpsT>2000){const f=fpsN*1000/fpsT;if(f<42&&QL<2){fpsBad++;if(fpsBad>=2){QL++;fpsBad=0;fitRes()}}else fpsBad=0;fpsT=0;fpsN=0}}fitRes();ctx.setTransform(RS,0,0,RS,0,0);ctx.save();if(shk>0){ctx.translate((Math.random()-.5)*shk,(Math.random()-.5)*shk);shk*=.85;if(shk<.3)shk=0}draw();ctx.restore();requestAnimationFrame(loop)}
-addEventListener('keydown',e=>{keys[e.key]=true;if((e.key===' '||e.key==='Enter')&&state==='over')start();if(e.key===' ')e.preventDefault();if(e.key.startsWith('Arrow'))e.preventDefault()});
+addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA')return;keys[e.key]=true;if((e.key===' '||e.key==='Enter')&&state==='over')start();if(e.key===' ')e.preventDefault();if(e.key.startsWith('Arrow'))e.preventDefault()});
 addEventListener('keyup',e=>keys[e.key]=false);
 const tpos=e=>{const r=cv.getBoundingClientRect();return(e.clientX-r.left)/r.width*W};
 cv.addEventListener('pointerdown',e=>{if(state==='play'){touchX=tpos(e);anc={x:touchX,px:p.x}}});
