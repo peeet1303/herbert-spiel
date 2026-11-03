@@ -435,7 +435,7 @@ async function mqRoom(code){const me='h'+Math.random().toString(36).slice(2,10),
 const GL={rows:{},conns:[],on:false,last:0};
 function glId(){let id=null;try{id=localStorage.getItem('herbert-rid')}catch(e){}if(!id){id='r'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);try{localStorage.setItem('herbert-rid',id)}catch(e){}}return id}
 /* ===== KONTO · FREUNDE · ADMIN · BILDER ===== */
-var MQL=[],MQS={},ACT='herbert-spiel-v2/acc/',FRQ='herbert-spiel-v2/freq/',FAC='herbert-spiel-v2/facc/',CHT='herbert-spiel-v2/chat/',NWS='herbert-spiel-v2/news',DIR='herbert-spiel-v2/dir/',BAN='herbert-spiel-v2/ban';
+var MQL=[],MQS={},ACT='herbert-spiel-v2/acc/',FRQ='herbert-spiel-v2/freq/',FAC='herbert-spiel-v2/facc/',CHT='herbert-spiel-v2/chat/',NWS='herbert-spiel-v2/news',DIR='herbert-spiel-v2/dir/',BAN='herbert-spiel-v2/ban2';
 var TE=new TextEncoder(),TD=new TextDecoder(),ACCK=null,accT=null,FR={req:{},chats:{},inited:false,open:null,dir:{},dirOn:false},BANS=[],NEWS2=null;
 function b64e(buf){let s='';const a=new Uint8Array(buf);for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s)}
 function b64d(s){const b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
